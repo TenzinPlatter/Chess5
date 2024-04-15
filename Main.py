@@ -25,7 +25,7 @@ class App():
 
     def render(self) -> None:
         self.get_board().render_all(self.window)
-        self.get_pieces_class().render_all()
+        self.get_pieces_class().render_all(self.window)
         pygame.display.update()
 
     def is_running(self) -> bool:

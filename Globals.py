@@ -27,7 +27,7 @@ def can_select() -> bool:
     lastTime = pygame.time.get_ticks()
     return True
 
-def to_coords(coords: tuple[int]) -> tuple[int]:
+def pos_to_coords(coords: tuple[int]) -> tuple[int]:
     """Converts the x, y coordinates of the mouse to the x, y coordinates of the board."""
     x,y = coords
     x,y = int((x-BORDER)/SQUARE_SIZE), int((y-BORDER)/SQUARE_SIZE)
@@ -35,8 +35,15 @@ def to_coords(coords: tuple[int]) -> tuple[int]:
         return False
     return x,y
 
-def add_offest(val) -> int:
-    return val*SQUARE_SIZE + BORDER
+def coord_to_pos(coord) -> int:
+    x, y = coord
+    return x * SQUARE_SIZE + BORDER, y * SQUARE_SIZE + BORDER
+
+def coord_to_image_pos(coords: tuple[int], corner_offset_from_center: float = 0) -> int:
+    x, y = coords
+    x = x * SQUARE_SIZE + BORDER + corner_offset_from_center
+    y = y * SQUARE_SIZE + BORDER + corner_offset_from_center
+    return x, y
 
 def render_queue(surface) -> int:
     for item in renderingQueue:
