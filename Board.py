@@ -5,7 +5,10 @@ class index():
 
 class Board():
     def __init__(self) -> None:
-        self.squares = Board.init_array()
+        self._squares = Board.init_array()
+        
+    @property
+    def squares(self) -> list: return self._squares
     
     def render_all(self, window: pygame.surface):
         for col in self.squares:
@@ -15,10 +18,21 @@ class Board():
     def unselect_all(self):
         for col in self.squares:
             for square in col:
-                square.unselect()
+                square.unselect_square()
 
-    def get_squares(self):
-        return self.squares
+    def clicked_square(self, coords: tuple[int]) -> None:
+        x, y = coords
+        square = self.squares[x][y]
+        if square.selected:
+            if (square.x+square.y)%2==0:
+                square.colour = G.LIGHTCOLOUR
+            else:
+                square.colour = G.DARKCOLOUR
+        else:
+            square.colour = G.SELECTEDCOLOUR
+        square.selected = not square.selected
+
+        
 
     @staticmethod
     def init_array() -> list:
@@ -42,18 +56,6 @@ class Square():
         self._y = y
         self._rect = pygame.Rect(*G.coord_to_pos((x, y)), G.SQUARE_SIZE, G.SQUARE_SIZE)
         self._selected = False        
-        
-    def unselect(self):
-        if (self.x+self.y)%2==0:
-            self.colour = G.LIGHTCOLOUR
-        else:
-            self.colour = G.DARKCOLOUR
-
-    def select_square(self) -> None:
-        if self.selected:
-            self.unselect()
-        else:
-            self.colour = G.SELECTEDCOLOUR
 
     @property
     def rect(self): return self._rect

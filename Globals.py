@@ -8,7 +8,7 @@ LIGHTCOLOUR = (245, 179, 113)
 DARKCOLOUR = (168, 94, 20)
 SELECTEDCOLOUR = (255, 51, 51)
 VALIDCOLOUR = (160,160,160)
-DELAY = 300
+DELAY = 200
 lastTime = 0
 renderingQueue = []
 
@@ -32,7 +32,7 @@ def pos_to_coords(coords: tuple[int]) -> tuple[int]:
     x,y = coords
     x,y = int((x-BORDER)/SQUARE_SIZE), int((y-BORDER)/SQUARE_SIZE)
     if x<0 or x>7 or y<0 or y>7:
-        return False
+        return None
     return x,y
 
 def coord_to_pos(coord) -> int:
