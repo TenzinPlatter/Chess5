@@ -45,17 +45,13 @@ def coord_to_image_pos(coords: tuple[int], corner_offset_from_center: float = 0)
     y = y * SQUARE_SIZE + BORDER + corner_offset_from_center
     return x, y
 
-def render_queue(surface) -> int:
-    for item in renderingQueue:
-        item.draw(surface)
-
 def get_piece_image(name: str, colour: str) -> pygame.image:
-    return pygame.transform.scale(pygame.image.load(f"Piece_Pngs/{name}_{colour}.png"), (SQUARE_SIZE, SQUARE_SIZE))
+    return pygame.transform.scale(pygame.image.load(f"Assets/{name}_{colour}.png"), (SQUARE_SIZE, SQUARE_SIZE))
 
 class RenderCircle():
     def __init__(self,x,y):
         self.center = (x+.5)*SQUARE_SIZE+BORDER, (y+.5)*SQUARE_SIZE+BORDER
     
-    def draw(self, surf: pygame.surface) -> None:
+    def draw(self, surf: pygame.surface):
         pygame.draw.circle(surf, VALIDCOLOUR, self.center, SQUARE_SIZE*.2)
         

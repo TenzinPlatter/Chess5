@@ -24,22 +24,17 @@ def init_array():
     
     return result
 
-def collides_with_piece(piece_to_check: Piece, pieces_list: list[Piece]) -> Piece | None:
+def collides_with_piece(x: int, y: int , pieces_list: list[Piece]) -> Piece | None:
     for piece in pieces_list:
-        if piece.x == piece_to_check.x and piece.y == piece_to_check.y:
+        if piece.x == x and piece.y == y:
             return piece
     return None
 
 
 class Pieces:
     def __init__(self):
-        self._pieces = init_array()
+        self.pieces = init_array()
         self.set_all_valid_moves()
-
-    @property
-    def pieces(self): return self._pieces
-    @pieces.setter
-    def pieces(self, value): self._pieces = value
 
     def render_all(self, window):
         for piece in self.pieces:
@@ -66,34 +61,28 @@ class Base_Piece_Methods:
         self._image = G.get_piece_image(piece_type, colour)
         self._valid_move_vectors = None
         self._image_pos = G.coord_to_image_pos((x, y))
-
+        self.valid_moves = []
 
     @property
     def colour(self): return self._colour
     @colour.setter
     def colour(self, value): self._colour = value
-
     @property
     def x(self): return self._x
     @x.setter
     def x(self, value): self._x = value
-
     @property
     def y(self): return self._y
     @y.setter
     def y(self, value): self._y = value
-
     @property
     def piece_type(self): return self._piece_type
-
     @property
     def image(self): return self._image
-
     @property
     def valid_move_vectors(self): return self._valid_move_vectors
     @valid_move_vectors.setter
     def valid_move_vectors(self, val): raise Exception("Shouldn't be changing valid move vectors here")
-
     @property
     def image_pos(self): return self._image_pos
     @image_pos.setter
@@ -104,7 +93,6 @@ class Base_Piece_Methods:
         Y = 1
         valid_moves = []
         for vector in self.valid_move_vectors:
-            collided_piece = collides_with_piece(self, pieces_array)
             x = self.x
             y = self.y
             while True:
@@ -112,23 +100,22 @@ class Base_Piece_Methods:
                 y += vector[Y]
                 if x < 0 or x > 7 or y < 0 or y > 7:
                     break
+                collided_piece = collides_with_piece(x, y, pieces_array)
                 if collided_piece is not None:
                     if collided_piece.colour == self.colour:
                         break
                     valid_moves.append((x, y))
                     break
                 valid_moves.append((x, y))
-        return valid_moves
-
-    
+        self.valid_moves = valid_moves
 
 class Pawn(Base_Piece_Methods):
     def __init__(self, x: int, y: int, colour: str):
         super().__init__(colour, x, y, "pawn")
         self._has_moved = False
         self._valid_move_vectors = (
-            (0,1) if colour == "white" else (0,-1),
-            (0,2) if colour == "white" else (0,-2)
+            (0,-1) if colour == "white" else (0,1),
+            (0,-2) if colour == "white" else (0,2)
         )
     
     @property
@@ -148,11 +135,11 @@ class Pawn(Base_Piece_Methods):
             y = self.y + vector[Y]
             if x < 0 or x > 7 or y < 0 or y > 7:
                 continue
-            collided_piece = collides_with_piece(self, pieces_array)
+            collided_piece = collides_with_piece(x, y, pieces_array)
             if collided_piece is not None and collided_piece.colour == self.colour:
                 continue
             valid_moves.append((x, y))
-        return valid_moves
+        self.valid_moves = valid_moves
 
 class Knight(Base_Piece_Methods):
     def __init__(self, x: int, y: int, colour: str):
@@ -177,11 +164,11 @@ class Knight(Base_Piece_Methods):
             y = self.y + vector[Y]
             if x < 0 or x > 7 or y < 0 or y > 7:
                 continue
-            collided_piece = collides_with_piece(self, pieces_array)
+            collided_piece = collides_with_piece(x, y, pieces_array)
             if collided_piece is not None and collided_piece.colour == self.colour:
                     continue
             valid_moves.append((x, y))
-        return valid_moves
+        self.valid_moves = valid_moves
 
 
 class Bishop(Base_Piece_Methods):
@@ -246,3 +233,4 @@ class King(Base_Piece_Methods):
             if value is True:
                 self._has_moved = True
                 #TODO add changes for after the king moves
+        #TODO add set valid moves method

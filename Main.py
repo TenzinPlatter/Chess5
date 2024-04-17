@@ -12,6 +12,7 @@ class App():
         self._running = True
         self._window = pygame.display.set_mode((Globals.WIDTH, Globals.HEIGHT))
         self.clock = pygame.time.Clock()
+        self.selected_piece = None
         self.main_loop()
 
     @property
@@ -58,21 +59,26 @@ class App():
         if piece is None:
             self.board.unselect_all()
             return
+        self.selected_piece = piece
         
     def handle_right_click(self) -> None:
         if not Globals.can_select(): return
         x, y = pygame.mouse.get_pos()
         coords = Globals.pos_to_coords((x, y))
         if coords is None: return
-        piece = self.pieces_class.get_piece_at(coords)
-        if piece is not None: pass #TODO show piece moves
+        self.selected_piece = None
         self.board.clicked_square(coords)
 
     def render(self) -> None:
         self.board.render_all(self.window)
         self.pieces_class.render_all(self.window)
+        self.render_selected_piece_moves()
         pygame.display.update()
 
+    def render_selected_piece_moves(self):
+        if self.selected_piece is None: return
+        for move in self.selected_piece.valid_moves:
+            Globals.RenderCircle(move[0], move[1]).draw(self.window)
 
-    
+
 App()
