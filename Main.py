@@ -6,29 +6,28 @@ import Globals
 class App():
     def __init__(self) -> None:
         pygame.init()
-        self._board = Board()
-        self._pieces_class = Pieces()
+        self.board = Board()
+        self.pieces_class = Pieces()
         self._selected = None
-        self._running = True
-        self._window = pygame.display.set_mode((Globals.WIDTH, Globals.HEIGHT))
+        self.running = True
+        self.window = pygame.display.set_mode((Globals.WIDTH, Globals.HEIGHT))
         self.clock = pygame.time.Clock()
         self.selected_piece = None
+        self._turn_colour = 'white'
         self.main_loop()
 
-    @property
-    def running(self) -> bool: return self._running
-    @running.setter
-    def running(self, value: bool) -> None: self._running = value
-    @property
-    def board(self) -> Board: return self._board
     @property
     def squares(self) -> list: return self._board.squares
     @property
     def pieces_list(self) -> list: return self.pieces_class.pieces
     @property
-    def pieces_class(self) -> Pieces: return self._pieces_class
-    @property
-    def window(self) -> pygame.surface: return self._window
+    def turn_colour(self) -> bool: return self._turn_colour
+    @turn_colour.setter
+    def turn_colour(self, value): 
+        if value in ['white', 'black']: self._turn_colour = value
+        else: raise Exception(f"{value} is not 'white' or 'black'")
+    @property 
+    def correct_turn(self) -> bool: return self.turn_colour == self.selected_piece.colour
 
     def main_loop(self) -> None:
         FPS = 60
@@ -45,7 +44,6 @@ class App():
                 self.running = False
         LMB = 0
         RMB = 2
-        #TODO make sure there is no issue with processing lmb and rmb in one frame
         if pygame.mouse.get_pressed()[LMB]:
             self.handle_left_click()
         if pygame.mouse.get_pressed()[RMB]:
@@ -57,7 +55,7 @@ class App():
         x, y = coords
         if coords is None: return 
         piece = self.pieces_class.get_piece_at(coords)
-        if self.selected_piece is not None and self.selected_piece.is_valid_move(coords):
+        if self.selected_piece is not None and self.selected_piece.is_valid_move(coords) and self.correct_turn:
             self.selected_piece.move(coords)
             self.selected_piece = None
             return
@@ -81,7 +79,7 @@ class App():
         pygame.display.update()
 
     def render_selected_piece_moves(self):
-        if self.selected_piece is None: return
+        if self.selected_piece is None or not self.correct_turn: return
         for move in self.selected_piece.valid_moves:
             Globals.RenderCircle(move[0], move[1]).draw(self.window)
 
