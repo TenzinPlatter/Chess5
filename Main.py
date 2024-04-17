@@ -13,7 +13,8 @@ class App():
         self.window = pygame.display.set_mode((Globals.WIDTH, Globals.HEIGHT))
         self.clock = pygame.time.Clock()
         self.selected_piece = None
-        self._turn_colour = 'white'
+        self._white_turn = True
+        self.move_made = False
         self.main_loop()
 
     @property
@@ -21,18 +22,22 @@ class App():
     @property
     def pieces_list(self) -> list: return self.pieces_class.pieces
     @property
-    def turn_colour(self) -> bool: return self._turn_colour
-    @turn_colour.setter
-    def turn_colour(self, value): 
-        if value in ['white', 'black']: self._turn_colour = value
-        else: raise Exception(f"{value} is not 'white' or 'black'")
+    def white_turn(self) -> bool: return self._white_turn
+    @white_turn.setter
+    def white_turn(self, value): 
+        if value in [True, False]: self._white_turn = value
+        else: raise Exception(f"{value} is not True or False")
     @property 
-    def correct_turn(self) -> bool: return self.turn_colour == self.selected_piece.colour
+    def correct_turn(self) -> bool: 
+        if (self.white_turn and self.selected_piece.colour == "white") or (not self.white_turn and self.selected_piece.colour == "black"): return True
 
     def main_loop(self) -> None:
         FPS = 60
         while self.running:
-            self.pieces_class.set_all_valid_moves()
+            if self.move_made:
+                self.pieces_class.set_all_valid_moves()
+                self.white_turn = not self.white_turn
+                self.move_made = False
             self.clock.tick(FPS)
             self.handle_events()
             self.render()
@@ -58,6 +63,7 @@ class App():
         if self.selected_piece is not None and self.selected_piece.is_valid_move(coords) and self.correct_turn:
             self.selected_piece.move(coords)
             self.selected_piece = None
+            self.move_made = True
             return
         if piece is None:
             self.board.unselect_all()
