@@ -141,6 +141,8 @@ class Pawn(Base_Piece_Methods):
             (1, -1) if self.colour == "white" else (1, 1),
             (-1, -1) if self.colour == "white" else (-1, 1)
         )
+        if self.has_moved:
+            self._valid_move_vectors = ((0,-1) if self.colour == "white" else (0,1),)
         valid_moves = []
         for vector in self.valid_move_vectors:
             x = self.x + vector[X]
@@ -148,7 +150,7 @@ class Pawn(Base_Piece_Methods):
             if x < 0 or x > 7 or y < 0 or y > 7:
                 continue
             collided_piece = collides_with_piece(x, y, pieces_array)
-            if collided_piece is not None and collided_piece.colour == self.colour:
+            if collided_piece is not None:
                 continue
             valid_moves.append((x, y))
         for vector in take_vectors:
@@ -160,6 +162,13 @@ class Pawn(Base_Piece_Methods):
             if collided_piece is not None and collided_piece.colour != self.colour:
                 valid_moves.append((x, y))
         self.valid_moves = valid_moves
+
+    def move(self, move: list[int]):
+        if move not in self.valid_moves: raise Exception(f"Invalid move, {move} not in {self.valid_moves}")
+        self.x, self.y = move
+        self.image_pos = G.coord_to_image_pos(move)
+        self.has_moved = True
+
 
 class Knight(Base_Piece_Methods):
     def __init__(self, x: int, y: int, colour: str):
