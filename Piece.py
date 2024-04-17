@@ -54,39 +54,14 @@ class Pieces:
 
 class Base_Piece_Methods:    
     def __init__(self, colour: str, x: int, y: int, piece_type: str):
-        self._colour = colour
-        self._x = x
-        self._y = y
-        self._piece_type = piece_type
-        self._image = G.get_piece_image(piece_type, colour)
-        self._valid_move_vectors = None
-        self._image_pos = G.coord_to_image_pos((x, y))
+        self.colour = colour
+        self.x = x
+        self.y = y
+        self.piece_type = piece_type
+        self.image = G.get_piece_image(piece_type, colour)
+        self.valid_move_vectors = None
+        self.image_pos = G.coord_to_image_pos((x, y))
         self.valid_moves = []
-
-    @property
-    def colour(self): return self._colour
-    @colour.setter
-    def colour(self, value): self._colour = value
-    @property
-    def x(self): return self._x
-    @x.setter
-    def x(self, value): self._x = value
-    @property
-    def y(self): return self._y
-    @y.setter
-    def y(self, value): self._y = value
-    @property
-    def piece_type(self): return self._piece_type
-    @property
-    def image(self): return self._image
-    @property
-    def valid_move_vectors(self): return self._valid_move_vectors
-    @valid_move_vectors.setter
-    def valid_move_vectors(self, val): raise Exception("Shouldn't be changing valid move vectors here")
-    @property
-    def image_pos(self): return self._image_pos
-    @image_pos.setter
-    def image_pos(self, value): self._image_pos = value
 
     def set_valid_moves(self, pieces_array: list[Piece]):
         X = 0
@@ -121,18 +96,15 @@ class Pawn(Base_Piece_Methods):
     def __init__(self, x: int, y: int, colour: str):
         super().__init__(colour, x, y, "pawn")
         self._has_moved = False
-        self._valid_move_vectors = (
+        self.valid_move_vectors = (
             (0,-1) if colour == "white" else (0,1),
             (0,-2) if colour == "white" else (0,2)
         )
     
-    @property
-    def has_moved(self): return self._has_moved
-    @has_moved.setter
     def has_moved(self, value):
         if value is True:
-            self._has_moved = value
-            self._valid_move_vectors = ((0,1) if self.colour == "white" else (0,-1),)
+            self.has_moved = value
+            self.valid_move_vectors = ((0,1) if self.colour == "white" else (0,-1),)
     
     def set_valid_moves(self, pieces_array: list[Piece]) -> list[tuple[int]]:
         X = 0
@@ -141,17 +113,13 @@ class Pawn(Base_Piece_Methods):
             (1, -1) if self.colour == "white" else (1, 1),
             (-1, -1) if self.colour == "white" else (-1, 1)
         )
-        if self.has_moved:
-            self._valid_move_vectors = ((0,-1) if self.colour == "white" else (0,1),)
         valid_moves = []
         for vector in self.valid_move_vectors:
             x = self.x + vector[X]
             y = self.y + vector[Y]
-            if x < 0 or x > 7 or y < 0 or y > 7:
-                continue
             collided_piece = collides_with_piece(x, y, pieces_array)
-            if collided_piece is not None:
-                continue
+            if collided_piece is not None or x < 0 or x > 7 or y < 0 or y > 7:
+                break
             valid_moves.append((x, y))
         for vector in take_vectors:
             x = self.x + vector[X]
@@ -168,12 +136,15 @@ class Pawn(Base_Piece_Methods):
         self.x, self.y = move
         self.image_pos = G.coord_to_image_pos(move)
         self.has_moved = True
+        self.valid_move_vectors = (
+            (0,-1) if self.colour == "white" else (0,1),
+        )
 
 
 class Knight(Base_Piece_Methods):
     def __init__(self, x: int, y: int, colour: str):
         super().__init__(colour, x, y, "knight")
-        self._valid_move_vectors = (
+        self.valid_move_vectors = (
             (1,2),
             (2,1),
             (-1,2),
@@ -188,7 +159,7 @@ class Knight(Base_Piece_Methods):
         X = 0
         Y = 1
         valid_moves = []
-        for vector in self._valid_move_vectors:
+        for vector in self.valid_move_vectors:
             x = self.x + vector[X]
             y = self.y + vector[Y]
             if x < 0 or x > 7 or y < 0 or y > 7:
@@ -203,7 +174,7 @@ class Knight(Base_Piece_Methods):
 class Bishop(Base_Piece_Methods):
     def __init__(self, x: int, y: int, colour: str):
         super().__init__(colour, x, y, "bishop")
-        self._valid_move_vectors = (
+        self.valid_move_vectors = (
             (1,1),
             (1,-1),
             (-1,1),
@@ -214,7 +185,7 @@ class Bishop(Base_Piece_Methods):
 class Rook(Base_Piece_Methods):
     def __init__(self, x: int, y: int, colour: str):
         super().__init__(colour, x, y, "rook")
-        self._valid_move_vectors = (
+        self.valid_move_vectors = (
             (0,1),
             (0,-1),
             (1,0),
@@ -225,7 +196,7 @@ class Rook(Base_Piece_Methods):
 class Queen(Base_Piece_Methods):
     def __init__(self, x: int, y: int, colour: str):
         super().__init__(colour, x, y, "queen")
-        self._valid_move_vectors = (
+        self.valid_move_vectors = (
             (0,1),
             (0,-1),
             (1,0),
@@ -240,7 +211,7 @@ class Queen(Base_Piece_Methods):
 class King(Base_Piece_Methods):
     def __init__(self, x: int, y: int, colour: str):
         super().__init__(colour, x, y, "king")
-        self._valid_move_vectors = (
+        self.valid_move_vectors = (
             (0,1),
             (0,-1),
             (1,0),
