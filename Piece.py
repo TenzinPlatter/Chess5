@@ -137,6 +137,10 @@ class Pawn(Base_Piece_Methods):
     def set_valid_moves(self, pieces_array: list[Piece]) -> list[tuple[int]]:
         X = 0
         Y = 1
+        take_vectors = (
+            (1, -1) if self.colour == "white" else (1, 1),
+            (-1, -1) if self.colour == "white" else (-1, 1)
+        )
         valid_moves = []
         for vector in self.valid_move_vectors:
             x = self.x + vector[X]
@@ -147,6 +151,14 @@ class Pawn(Base_Piece_Methods):
             if collided_piece is not None and collided_piece.colour == self.colour:
                 continue
             valid_moves.append((x, y))
+        for vector in take_vectors:
+            x = self.x + vector[X]
+            y = self.y + vector[Y]
+            if x < 0 or x > 7 or y < 0 or y > 7:
+                continue
+            collided_piece = collides_with_piece(x, y, pieces_array)
+            if collided_piece is not None and collided_piece.colour != self.colour:
+                valid_moves.append((x, y))
         self.valid_moves = valid_moves
 
 class Knight(Base_Piece_Methods):
