@@ -33,6 +33,7 @@ class App():
     def main_loop(self) -> None:
         FPS = 60
         while self.running:
+            self.pieces_class.set_all_valid_moves()
             self.clock.tick(FPS)
             self.handle_events()
             self.render()
@@ -52,22 +53,26 @@ class App():
 
     def handle_left_click(self) -> None:
         if not Globals.can_select(): return
-        x, y = pygame.mouse.get_pos()
-        coords = Globals.pos_to_coords((x, y))
+        coords = Globals.pos_to_coords(pygame.mouse.get_pos())
+        x, y = coords
         if coords is None: return 
         piece = self.pieces_class.get_piece_at(coords)
+        if self.selected_piece is not None and self.selected_piece.is_valid_move(coords):
+            self.selected_piece.move(coords)
+            self.selected_piece = None
+            return
         if piece is None:
             self.board.unselect_all()
+            self.selected_piece = piece
             return
         self.selected_piece = piece
         
     def handle_right_click(self) -> None:
         if not Globals.can_select(): return
-        x, y = pygame.mouse.get_pos()
-        coords = Globals.pos_to_coords((x, y))
+        coords = Globals.pos_to_coords(pygame.mouse.get_pos())
+        x, y = coords
         if coords is None: return
-        self.selected_piece = None
-        self.board.clicked_square(coords)
+        self.squares[x][y].clicked_square()
 
     def render(self) -> None:
         self.board.render_all(self.window)

@@ -109,6 +109,14 @@ class Base_Piece_Methods:
                 valid_moves.append((x, y))
         self.valid_moves = valid_moves
 
+    def is_valid_move(self, move: list[int]) -> bool:
+        return move in self.valid_moves  
+
+    def move(self, move: list[int]):
+        if move not in self.valid_moves: raise Exception(f"Invalid move, {move} not in {self.valid_moves}")
+        self.x, self.y = move
+        self.image_pos = G.coord_to_image_pos(move)
+
 class Pawn(Base_Piece_Methods):
     def __init__(self, x: int, y: int, colour: str):
         super().__init__(colour, x, y, "pawn")

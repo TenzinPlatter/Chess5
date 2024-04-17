@@ -18,20 +18,8 @@ class Board():
     def unselect_all(self):
         for col in self.squares:
             for square in col:
-                square.selected = False
+                square.selected = True
                 square.clicked_square()
-
-    def clicked_square(self, coords: tuple[int]) -> None:
-        x, y = coords
-        square = self.squares[x][y]
-        if square.selected:
-            if (square.x+square.y)%2==0:
-                square.colour = G.LIGHTCOLOUR
-            else:
-                square.colour = G.DARKCOLOUR
-        else:
-            square.colour = G.SELECTEDCOLOUR
-        square.selected = not square.selected
 
     @staticmethod
     def init_array() -> list:
@@ -54,7 +42,17 @@ class Square():
         self._x = x
         self._y = y
         self._rect = pygame.Rect(*G.coord_to_pos((x, y)), G.SQUARE_SIZE, G.SQUARE_SIZE)
-        self._selected = False        
+        self._selected = False
+           
+    def clicked_square(self) -> None:
+        if self.selected:
+            if (self.x+self.y)%2==0:
+                self.colour = G.LIGHTCOLOUR
+            else:
+                self.colour = G.DARKCOLOUR
+        else:
+            self.colour = G.SELECTEDCOLOUR
+        self.selected = not self.selected
 
     @property
     def rect(self): return self._rect
