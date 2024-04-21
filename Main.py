@@ -61,7 +61,10 @@ class App():
         if coords is None: return 
         piece = self.pieces_class.get_piece_at(coords)
         if self.selected_piece is not None and self.selected_piece.is_valid_move(coords) and self.correct_turn:
+            taken_piece = self.pieces_class.get_piece_at(coords)
             self.selected_piece.move(coords)
+            if taken_piece is not None:
+                self.pieces_class.pieces.remove(taken_piece)
             self.selected_piece = None
             self.move_made = True
             return

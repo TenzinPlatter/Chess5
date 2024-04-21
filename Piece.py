@@ -1,14 +1,13 @@
 import Globals as G
+#TODO make sure pieces cannot jump over others
 
 class Piece: pass #for type hinting
 
 def init_array():
     result = []
-    
     for x in range(8):
         result.append(Pawn(x, 6, "white"))
         result.append(Pawn(x, 1, "black"))
-    
     for x in range(2):
         result.append(Rook(x * 7, 7, "white"))
         result.append(Rook(x * 7, 0, "black"))
@@ -16,7 +15,6 @@ def init_array():
         result.append(Knight(x * 5 + 1, 0, "black"))
         result.append(Bishop(x * 3 + 2, 7, "white"))
         result.append(Bishop(x * 3 + 2, 0, "black"))
-    
     result.append(Queen(3, 7, "white"))
     result.append(Queen(3, 0, "black"))
     result.append(King(4, 7, "white"))
@@ -54,7 +52,7 @@ class Pieces:
 
 class Base_Piece_Methods:    
     def __init__(self, colour: str, x: int, y: int, piece_type: str):
-        self.colour = colour
+        self._colour = colour
         self.x = x
         self.y = y
         self.piece_type = piece_type
@@ -62,6 +60,11 @@ class Base_Piece_Methods:
         self.valid_move_vectors = None
         self.image_pos = G.coord_to_image_pos((x, y))
         self.valid_moves = []
+
+    @property
+    def colour(self): return self._colour
+    @colour.setter
+    def colour(self, value): raise Exception("Cannot change colour of piece")
 
     def set_valid_moves(self, pieces_array: list[Piece]):
         X = 0
@@ -73,13 +76,12 @@ class Base_Piece_Methods:
             while True:
                 x += vector[X]
                 y += vector[Y]
+                collided_piece = collides_with_piece(x, y, pieces_array)
                 if x < 0 or x > 7 or y < 0 or y > 7:
                     break
-                collided_piece = collides_with_piece(x, y, pieces_array)
                 if collided_piece is not None:
-                    if collided_piece.colour == self.colour:
-                        break
-                    valid_moves.append((x, y))
+                    if collided_piece.colour != self.colour:
+                        valid_moves.append((x, y))
                     break
                 valid_moves.append((x, y))
         self.valid_moves = valid_moves
@@ -104,9 +106,10 @@ class Pawn(Base_Piece_Methods):
     def has_moved(self, value):
         if value is True:
             self.has_moved = value
-            self.valid_move_vectors = ((0,1) if self.colour == "white" else (0,-1),)
+            self.valid_move_vectors = ((0,-1) if self.colour == "white" else (0,1),)
     
     def set_valid_moves(self, pieces_array: list[Piece]) -> list[tuple[int]]:
+        #TODO add en passant and fix pawn not having valid moves later in game
         X = 0
         Y = 1
         take_vectors = (
@@ -141,6 +144,7 @@ class Pawn(Base_Piece_Methods):
         )
 
 
+
 class Knight(Base_Piece_Methods):
     def __init__(self, x: int, y: int, colour: str):
         super().__init__(colour, x, y, "knight")
@@ -154,7 +158,7 @@ class Knight(Base_Piece_Methods):
             (-1,-2),
             (-2,-1)
         )
-    
+    #TODO add move method 
     def set_valid_moves(self, pieces_array: list[Piece]) -> list[tuple[int]]:
         X = 0
         Y = 1
