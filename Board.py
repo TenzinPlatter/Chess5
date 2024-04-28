@@ -4,7 +4,7 @@ class index():
     pass
 
 class Board():
-    def __init__(self, squares = None) -> None:
+    def __init__(self) -> None:
         self._squares = Board.init_array()
         
     @property
