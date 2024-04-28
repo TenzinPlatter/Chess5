@@ -35,8 +35,8 @@ class App():
         FPS = 60
         while self.running:
             if self.move_made:
-                self.pieces_class.set_all_valid_moves()
                 self.white_turn = not self.white_turn
+                self.pieces_class.set_all_valid_moves(self.white_turn)
                 self.move_made = False
             self.clock.tick(FPS)
             self.handle_events()
@@ -59,18 +59,17 @@ class App():
         coords = Globals.pos_to_coords(pygame.mouse.get_pos())
         x, y = coords
         if coords is None: return 
+        move = self.pieces_class.get_move_at(coords)
         piece = self.pieces_class.get_piece_at(coords)
-        if self.selected_piece is not None and self.selected_piece.is_valid_move(coords) and self.correct_turn:
-            taken_piece = self.pieces_class.get_piece_at(coords)
-            self.selected_piece.move(coords)
-            if taken_piece is not None:
-                self.pieces_class.pieces.remove(taken_piece)
-            self.selected_piece = None
-            self.move_made = True
-            return
         if piece is None:
             self.board.unselect_all()
             self.selected_piece = piece
+            return
+        if self.selected_piece.is_valid_move(coords) and self.correct_turn:
+            #TODO fix 
+            self.pieces_class.move_piece(self.selected_piece, )
+            self.selected_piece = None
+            self.move_made = True
             return
         self.selected_piece = piece
         
