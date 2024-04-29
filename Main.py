@@ -57,14 +57,10 @@ class App():
     def handle_left_click(self) -> None:
         if not Globals.can_select(): return
         coords = Globals.pos_to_coords(pygame.mouse.get_pos())
-        x, y = coords
         if coords is None: return 
         piece = self.pieces_class.get_piece_at(coords)
         if self.selected_piece is not None and self.selected_piece.is_valid_move(coords) and self.correct_turn:
-            taken_piece = self.pieces_class.get_piece_at(coords)
-            self.selected_piece.move(coords)
-            if taken_piece is not None:
-                self.pieces_class.pieces.remove(taken_piece)
+            self.pieces_class.move_piece(self.selected_piece, coords)
             self.selected_piece = None
             self.move_made = True
             return

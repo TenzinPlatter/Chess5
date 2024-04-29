@@ -1,7 +1,4 @@
-from hmac import new
 import Globals as G
-from copy import deepcopy 
-#TODO make sure pieces cannot jump over others
 
 class Piece: pass #for type hinting
 
@@ -69,8 +66,11 @@ def clone_pieces_list(pieces_list: list[Piece]) -> list[Piece]:
     return result
 
 class Pieces:
-    def __init__(self):
-        self.pieces = init_array()
+    def __init__(self, pieces = None):
+        if pieces is not None: 
+            self.pieces = pieces
+        else:
+            self.pieces = init_array()
         self.set_all_valid_moves()
 
     def render_all(self, window):
@@ -97,21 +97,33 @@ class Pieces:
                     piece.valid_moves.remove(move)
     
     def move_is_illegal(self, piece: Piece, move: list[int]) -> bool:
-        temp_pieces = clone_pieces_list(self.pieces)
-        temp_piece = self.get_piece_at(( piece.x, piece.y ), pieces = temp_pieces)
-        temp_piece.move(move)        
+        temp_pieces = Pieces(pieces = self.pieces.copy())
+        temp_pieces.pieces = clone_pieces_list(self.pieces)
+        temp_piece = self.get_piece_at(( piece.x, piece.y ), pieces = temp_pieces.pieces)
+        for piece in temp_pieces.pieces:
+            piece.set_valid_moves(temp_pieces.pieces) 
         friendly_colour = temp_piece.colour
-        for piece in temp_pieces:
+        for piece in temp_pieces.pieces:
             if piece.colour != friendly_colour or piece.piece_type != "king":
-                continue
-            friendly_king = piece
-            break
-        for piece in temp_pieces:
+                friendly_king = piece
+                break
+        for piece in temp_pieces.pieces:
             for move in piece.valid_moves:
-               if friendly_king.x == move[0] and friendly_king.y == move[1]:
+               if ( friendly_king.x == move[0] and friendly_king.y == move[1] ) and piece.colour != friendly_colour:
                    return True 
         return False
-
+    
+    def move_piece(self, piece: Piece, move: list[int]):
+        if move not in self.valid_moves: raise Exception(f"Invalid move, {move} not in {self.valid_moves}")
+        taken_piece = self.get_piece_at(move)
+        self.x, self.y = move
+        self.image_pos = G.coord_to_image_pos(move)
+        if taken_piece is not None:
+            self.pieces_class.pieces.remove(taken_piece)
+        try:
+            piece.has_moved = True
+        except: 
+            pass 
 
 class Base_Piece_Methods:    
     def __init__(self, colour: str, x: int, y: int, piece_type: str):
@@ -152,10 +164,6 @@ class Base_Piece_Methods:
     def is_valid_move(self, move: list[int]) -> bool:
         return move in self.valid_moves  
 
-    def move(self, move: list[int]):
-        if move not in self.valid_moves: raise Exception(f"Invalid move, {move} not in {self.valid_moves}")
-        self.x, self.y = move
-        self.image_pos = G.coord_to_image_pos(move)
 
 class Pawn(Base_Piece_Methods):
     def __init__(self, x: int, y: int, colour: str):
@@ -296,7 +304,7 @@ class King(Base_Piece_Methods):
 
     def set_valid_moves(self, pieces_array: list[Piece]) -> list[tuple[int]]:
         X = 0
-        Y = 0
+        Y = 1
         valid_moves = []
         for vector in self.valid_move_vectors:
             x = self.x + vector[X]
@@ -307,5 +315,4 @@ class King(Base_Piece_Methods):
             if out_of_bounds or occupied_by_friendly:
                 continue
             valid_moves.append((x, y))
-    
-
+        self.valid_moves = valid_moves
